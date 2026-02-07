@@ -6,24 +6,16 @@ import SearchBar from "@/components/layout/SearchBar";
 import BookCard from "@/components/BookCard";
 import SelectedForYou from "@/components/SelectedForYou";
 import { useAuthStore } from "@/store/authStore";
-import { useRouter } from "next/navigation";
 import { Book } from "@/types/book";
 
 export default function ForYou() {
   const user = useAuthStore((state) => state.user);
-  const router = useRouter();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const [selectedBook, setSelectedBook] = useState<Book | null>(null);
   const [recommendedBooks, setRecommendedBooks] = useState<Book[]>([]);
   const [suggestedBooks, setSuggestedBooks] = useState<Book[]>([]);
   const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    if (!user) {
-      router.push("/");
-    }
-  }, [user, router]);
 
   useEffect(() => {
     async function fetchBooks() {
@@ -51,7 +43,54 @@ export default function ForYou() {
     fetchBooks();
   }, []);
 
-  if (!user) return null;
+  // Auth still loading - show skeleton
+  if (user === undefined) {
+    return (
+      <>
+        <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+        <div className="relative flex flex-col ml-50 w-[calc(100%-200px)] transition-all duration-300 max-md:ml-0 max-md:w-full">
+          <SearchBar onMenuClick={() => setSidebarOpen(true)} />
+          <div className="p-8 max-w-267.5 mx-auto w-full">
+            {/* Selected Book Skeleton */}
+            <div className="mb-8">
+              <div className="h-6 w-48 bg-gray-200 animate-pulse rounded mb-4" />
+              <div className="h-50 bg-gray-200 animate-pulse rounded-lg max-w-175" />
+            </div>
+
+            {/* Recommended Books Skeleton */}
+            <div className="mb-8">
+              <div className="h-6 w-48 bg-gray-200 animate-pulse rounded mb-2" />
+              <div className="h-4 w-36 bg-gray-200 animate-pulse rounded mb-4" />
+              <div className="flex gap-4 overflow-x-auto">
+                {[...Array(5)].map((_, i) => (
+                  <div key={i} className="w-43 shrink-0">
+                    <div className="h-43 bg-gray-200 animate-pulse rounded" />
+                    <div className="h-4 bg-gray-200 animate-pulse mt-2 rounded" />
+                    <div className="h-3 bg-gray-200 animate-pulse mt-2 rounded w-3/4" />
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Suggested Books Skeleton */}
+            <div className="mb-8">
+              <div className="h-6 w-48 bg-gray-200 animate-pulse rounded mb-2" />
+              <div className="h-4 w-36 bg-gray-200 animate-pulse rounded mb-4" />
+              <div className="flex gap-4 overflow-x-auto">
+                {[...Array(5)].map((_, i) => (
+                  <div key={i} className="w-43 shrink-0">
+                    <div className="h-43 bg-gray-200 animate-pulse rounded" />
+                    <div className="h-4 bg-gray-200 animate-pulse mt-2 rounded" />
+                    <div className="h-3 bg-gray-200 animate-pulse mt-2 rounded w-3/4" />
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </>
+    );
+  }
 
   return (
     <>

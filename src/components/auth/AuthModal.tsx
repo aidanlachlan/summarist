@@ -2,15 +2,14 @@
 
 import { useAuthStore } from "@/store/authStore";
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { AiOutlineUser } from "react-icons/ai";
 import Image from "next/image";
-import { loginUser, registerUser, guestLogin } from "@/lib/auth";
+import { loginUser, registerUser, guestLogin, googleLogin } from "@/lib/auth";
 
 export default function AuthModal() {
   const isModalOpen = useAuthStore((state) => state.isModalOpen);
   const closeModal = useAuthStore((state) => state.closeModal);
-  const setUser = useAuthStore((state) => state.setUser);
 
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState("");
@@ -19,6 +18,15 @@ export default function AuthModal() {
   const [isLoading, setIsLoading] = useState(false);
 
   const router = useRouter();
+  const pathname = usePathname();
+
+  const handleAuthSuccess = () => {
+    closeModal();
+    // Only redirect if on homepage
+    if (pathname === "/") {
+      router.push("/for-you");
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -26,19 +34,14 @@ export default function AuthModal() {
     setIsLoading(true);
 
     try {
-      let userCredential;
-
       if (isLogin) {
-        userCredential = await loginUser(email, password);
+        await loginUser(email, password);
       } else {
-        userCredential = await registerUser(email, password);
+        await registerUser(email, password);
       }
 
-      setUser(userCredential.user);
-      closeModal();
-      router.push("/for-you");
+      handleAuthSuccess();
     } catch (err: unknown) {
-      // Firebase error handling
       const firebaseError = err as { code?: string };
       const errorCode = firebaseError.code;
 
@@ -73,12 +76,24 @@ export default function AuthModal() {
     setIsLoading(true);
 
     try {
-      const userCredential = await guestLogin();
-      setUser(userCredential.user);
-      closeModal();
-      router.push("/for-you");
+      await guestLogin();
+      handleAuthSuccess();
     } catch {
       setError("Guest login failed. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleGoogleLogin = async () => {
+    setError("");
+    setIsLoading(true);
+
+    try {
+      await googleLogin();
+      handleAuthSuccess();
+    } catch {
+      setError("Google login failed. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -123,7 +138,11 @@ export default function AuthModal() {
             </>
           )}
 
-          <button className="relative flex bg-[#4285f4] text-white justify-center w-full h-10 rounded text-base transition-colors duration-200 items-center min-w-45 cursor-pointer hover:bg-[#3367d6]">
+          <button
+            onClick={handleGoogleLogin}
+            disabled={isLoading}
+            className="relative flex bg-[#4285f4] text-white justify-center w-full h-10 rounded text-base transition-colors duration-200 items-center min-w-45 cursor-pointer hover:bg-[#3367d6]"
+          >
             <figure className="flex items-center justify-center w-9 h-9 rounded bg-white absolute left-0.5">
               <Image src="/google.png" alt="Google" width={24} height={24} />
             </figure>

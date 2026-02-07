@@ -12,7 +12,7 @@ import { app } from "@/lib/firebase";
 export type SubscriptionStatus = "basic" | "premium" | "premium-plus";
 
 interface AuthState {
-  user: User | null;
+  user: User | null | undefined;
   isModalOpen: boolean;
   subscriptionStatus: SubscriptionStatus;
   subscriptionLoading: boolean;
@@ -23,7 +23,7 @@ interface AuthState {
 }
 
 export const useAuthStore = create<AuthState>((set, get) => ({
-  user: null,
+  user: undefined,
   isModalOpen: false,
   subscriptionStatus: "basic",
   subscriptionLoading: true,

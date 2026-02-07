@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
 import Image from "next/image";
 import Sidebar from "@/components/layout/Sidebar";
 import SearchBar from "@/components/layout/SearchBar";
@@ -12,7 +12,6 @@ import { TbRewindBackward10, TbRewindForward10 } from "react-icons/tb";
 
 export default function PlayerPage() {
   const params = useParams();
-  const router = useRouter();
   const id = params.id as string;
 
   const user = useAuthStore((state) => state.user);
@@ -78,14 +77,6 @@ export default function PlayerPage() {
     setCurrentTime(newTime);
   };
 
-  // Redirect if not logged in
-  useEffect(() => {
-    if (!user) {
-      router.push("/");
-      openModal();
-    }
-  }, [user, router, openModal]);
-
   // Fetch book data
   useEffect(() => {
     async function fetchBook() {
@@ -108,26 +99,63 @@ export default function PlayerPage() {
   }, [id]);
 
   // Smooth progress bar update
-useEffect(() => {
-  let intervalId: NodeJS.Timeout | null = null;
+  useEffect(() => {
+    let intervalId: NodeJS.Timeout | null = null;
 
-  if (isPlaying) {
-    intervalId = setInterval(() => {
-      if (audioRef.current) {
-        setCurrentTime(audioRef.current.currentTime);
+    if (isPlaying) {
+      intervalId = setInterval(() => {
+        if (audioRef.current) {
+          setCurrentTime(audioRef.current.currentTime);
+        }
+      }, 100);
+    }
+
+    return () => {
+      if (intervalId) {
+        clearInterval(intervalId);
       }
-    }, 100);
+    };
+  }, [isPlaying]);
+
+  // Auth loading state
+  if (user === undefined) {
+    return (
+      <>
+        <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+        <div className="relative flex flex-col ml-[200px] w-[calc(100%-200px)] transition-all duration-300 max-md:ml-0 max-md:w-full min-h-screen">
+          <SearchBar onMenuClick={() => setSidebarOpen(true)} />
+          <div className="flex-1 flex items-center justify-center">
+            <div className="w-16 h-16 border-6 border-[#032b41] border-t-transparent rounded-full animate-spin" />
+          </div>
+        </div>
+      </>
+    );
   }
 
-  return () => {
-    if (intervalId) {
-      clearInterval(intervalId);
-    }
-  };
-}, [isPlaying]);
+  // Not logged in - show login prompt
+  if (user === null) {
+    return (
+      <>
+        <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+        <div className="relative flex flex-col ml-[200px] w-[calc(100%-200px)] transition-all duration-300 max-md:ml-0 max-md:w-full min-h-screen">
+          <SearchBar onMenuClick={() => setSidebarOpen(true)} />
+          <div className="flex-1 flex flex-col items-center justify-center p-8">
+            <p className="text-[#032b41] text-lg mb-4">
+              Please log in to access the player.
+            </p>
+            <button
+              onClick={openModal}
+              className="bg-[#2bd97c] text-[#032b41] font-semibold px-8 py-3 rounded cursor-pointer hover:bg-[#20ba68] transition-colors"
+            >
+              Login
+            </button>
+          </div>
+        </div>
+      </>
+    );
+  }
 
-  if (!user) return null;
-
+  // Data loading state
   if (loading) {
     return (
       <>
@@ -160,7 +188,7 @@ useEffect(() => {
     <>
       <audio
         ref={audioRef}
-        src={book?.audioLink}
+        src={book.audioLink}
         onLoadedMetadata={() => {
           if (audioRef.current) {
             setDuration(audioRef.current.duration);
@@ -191,7 +219,6 @@ useEffect(() => {
 
         {/* Audio Player - Fixed to bottom */}
         <div className="fixed bottom-0 left-[200px] right-0 h-20 bg-[#042330] flex items-center px-6 max-md:left-0">
-          {/* We'll build this together */}
           <div className="flex items-center gap-4 w-full">
             {/* Book info */}
             <div className="flex items-center gap-4">
@@ -211,7 +238,6 @@ useEffect(() => {
               </div>
             </div>
 
-            {/* Player controls - placeholder */}
             {/* Player controls */}
             <div className="flex-1 flex items-center justify-center gap-6 text-white">
               {/* Skip backward */}
