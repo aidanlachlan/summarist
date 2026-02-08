@@ -7,6 +7,7 @@ import Sidebar from "@/components/layout/Sidebar";
 import SearchBar from "@/components/layout/SearchBar";
 import { useAuthStore } from "@/store/authStore";
 import { Book } from "@/types/book";
+import { markBookFinished } from "@/lib/library";
 import { BsFillPlayFill, BsFillPauseFill } from "react-icons/bs";
 import { TbRewindBackward10, TbRewindForward10 } from "react-icons/tb";
 
@@ -199,8 +200,15 @@ export default function PlayerPage() {
             setCurrentTime(audioRef.current.currentTime);
           }
         }}
-        onEnded={() => {
+        onEnded={async () => {
           setIsPlaying(false);
+          if (user) {
+            try {
+              await markBookFinished(user.uid, id);
+            } catch (error) {
+              console.error("Error marking book as finished:", error);
+            }
+          }
         }}
       />
       <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
