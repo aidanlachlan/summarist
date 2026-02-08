@@ -8,6 +8,7 @@ import { useAuthStore } from "@/store/authStore";
 import { getSavedBooks, getFinishedBooks } from "@/lib/library";
 import { Book } from "@/types/book";
 import BookCard from "@/components/BookCard";
+import { getAudioDurations } from "@/lib/audioDuration";
 
 export default function LibraryPage() {
   const user = useAuthStore((state) => state.user);
@@ -17,6 +18,7 @@ export default function LibraryPage() {
   const [savedBooks, setSavedBooks] = useState<Book[]>([]);
   const [finishedBooks, setFinishedBooks] = useState<Book[]>([]);
   const [loading, setLoading] = useState(true);
+  const [durations, setDurations] = useState<Record<string, number>>({});
 
   useEffect(() => {
     async function fetchLibrary() {
@@ -39,10 +41,10 @@ export default function LibraryPage() {
           const books = await Promise.all(
             ids.map(async (id) => {
               const res = await fetch(
-                `https://us-central1-summaristt.cloudfunctions.net/getBook?id=${id}`
+                `https://us-central1-summaristt.cloudfunctions.net/getBook?id=${id}`,
               );
               return res.json();
-            })
+            }),
           );
           return books;
         };
@@ -54,9 +56,16 @@ export default function LibraryPage() {
 
         setSavedBooks(savedBooksData);
         setFinishedBooks(finishedBooksData);
+        setLoading(false);
+
+        // Fetch durations in background
+        const allBooks = [...savedBooksData, ...finishedBooksData];
+        if (allBooks.length > 0) {
+          const durationsMap = await getAudioDurations(allBooks);
+          setDurations(durationsMap);
+        }
       } catch (error) {
         console.error("Error fetching library:", error);
-      } finally {
         setLoading(false);
       }
     }
@@ -165,7 +174,7 @@ export default function LibraryPage() {
               {savedBooks.length > 0 ? (
                 <div className="flex flex-wrap gap-4">
                   {savedBooks.map((book) => (
-                    <BookCard key={book.id} book={book} />
+                    <BookCard key={book.id} book={book} duration={durations[book.id]} />
                   ))}
                 </div>
               ) : (
@@ -179,13 +188,14 @@ export default function LibraryPage() {
                 Finished
               </h2>
               <p className="text-[#6b757b] mb-6">
-                {finishedBooks.length} {finishedBooks.length === 1 ? "item" : "items"}
+                {finishedBooks.length}{" "}
+                {finishedBooks.length === 1 ? "item" : "items"}
               </p>
 
               {finishedBooks.length > 0 ? (
                 <div className="flex flex-wrap gap-4">
                   {finishedBooks.map((book) => (
-                    <BookCard key={book.id} book={book} />
+                    <BookCard key={book.id} book={book} duration={durations[book.id]} />
                   ))}
                 </div>
               ) : (
