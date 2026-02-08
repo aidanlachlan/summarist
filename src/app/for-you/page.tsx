@@ -7,6 +7,7 @@ import BookCard from "@/components/BookCard";
 import SelectedForYou from "@/components/SelectedForYou";
 import { useAuthStore } from "@/store/authStore";
 import { Book } from "@/types/book";
+import { getAudioDurations } from "@/lib/audioDuration";
 
 export default function ForYou() {
   const user = useAuthStore((state) => state.user);
@@ -17,13 +18,21 @@ export default function ForYou() {
   const [suggestedBooks, setSuggestedBooks] = useState<Book[]>([]);
   const [loading, setLoading] = useState(true);
 
+  const [durations, setDurations] = useState<Record<string, number>>({});
+
   useEffect(() => {
     async function fetchBooks() {
       try {
         const [selectedRes, recommendedRes, suggestedRes] = await Promise.all([
-          fetch("https://us-central1-summaristt.cloudfunctions.net/getBooks?status=selected"),
-          fetch("https://us-central1-summaristt.cloudfunctions.net/getBooks?status=recommended"),
-          fetch("https://us-central1-summaristt.cloudfunctions.net/getBooks?status=suggested"),
+          fetch(
+            "https://us-central1-summaristt.cloudfunctions.net/getBooks?status=selected",
+          ),
+          fetch(
+            "https://us-central1-summaristt.cloudfunctions.net/getBooks?status=recommended",
+          ),
+          fetch(
+            "https://us-central1-summaristt.cloudfunctions.net/getBooks?status=suggested",
+          ),
         ]);
 
         const selectedData = await selectedRes.json();
@@ -33,9 +42,18 @@ export default function ForYou() {
         setSelectedBook(selectedData[0]);
         setRecommendedBooks(recommendedData);
         setSuggestedBooks(suggestedData);
+        setLoading(false);
+
+        // Fetch durations in background for all books
+        const allBooks = [
+          ...selectedData,
+          ...recommendedData,
+          ...suggestedData,
+        ];
+        const durationsMap = await getAudioDurations(allBooks);
+        setDurations(durationsMap);
       } catch (error) {
         console.error("Error fetching books:", error);
-      } finally {
         setLoading(false);
       }
     }
@@ -98,7 +116,6 @@ export default function ForYou() {
       <div className="relative flex flex-col ml-50 w-[calc(100%-200px)] transition-all duration-300 max-md:ml-0 max-md:w-full">
         <SearchBar onMenuClick={() => setSidebarOpen(true)} />
         <div className="p-8 max-w-267.5 mx-auto w-full">
-
           {/* Selected Book Section */}
           <div className="mb-8">
             <h2 className="text-[22px] font-bold text-[#032b41] mb-4">
@@ -107,7 +124,12 @@ export default function ForYou() {
             {loading ? (
               <div className="h-50 bg-gray-200 animate-pulse rounded-lg max-w-175" />
             ) : (
-              selectedBook && <SelectedForYou book={selectedBook} />
+              selectedBook && (
+                <SelectedForYou
+                  book={selectedBook}
+                  duration={durations[selectedBook.id]}
+                />
+              )
             )}
           </div>
 
@@ -116,7 +138,9 @@ export default function ForYou() {
             <h2 className="text-[22px] font-bold text-[#032b41] mb-2">
               Recommended For You
             </h2>
-            <p className="text-[#6b757b] mb-4">We think you&apos;ll like these</p>
+            <p className="text-[#6b757b] mb-4">
+              We think you&apos;ll like these
+            </p>
             {loading ? (
               <div className="flex gap-4 overflow-x-auto">
                 {[...Array(5)].map((_, i) => (
@@ -130,7 +154,11 @@ export default function ForYou() {
             ) : (
               <div className="flex gap-4 overflow-x-auto scrollbar-hide">
                 {recommendedBooks.map((book) => (
-                  <BookCard key={book.id} book={book} />
+                  <BookCard
+                    key={book.id}
+                    book={book}
+                    duration={durations[book.id]}
+                  />
                 ))}
               </div>
             )}
@@ -155,12 +183,11 @@ export default function ForYou() {
             ) : (
               <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide">
                 {suggestedBooks.map((book) => (
-                  <BookCard key={book.id} book={book} />
+                  <BookCard key={book.id} book={book} duration={durations[book.id]} />
                 ))}
               </div>
             )}
           </div>
-
         </div>
       </div>
     </>

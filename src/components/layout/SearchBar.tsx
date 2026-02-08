@@ -88,7 +88,15 @@ export default function SearchBar({ onMenuClick }: SearchBarProps) {
                 type="text"
                 placeholder="Search for books"
                 value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  setSearchTerm(value);
+                  if (!value.trim()) {
+                    setShowDropdown(false);
+                    setResults([]);
+                    setDurations({});
+                  }
+                }}
                 className="h-10 w-full px-4 pr-16 outline-none bg-[#f1f6f4] text-[#042330] border-2 border-[#e1e7ea] rounded-lg"
               />
               <div className="flex items-center absolute h-full right-2 justify-end border-l-2 border-[#e1e7ea] pl-2">

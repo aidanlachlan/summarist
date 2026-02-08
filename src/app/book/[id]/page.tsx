@@ -7,9 +7,11 @@ import Sidebar from "@/components/layout/Sidebar";
 import SearchBar from "@/components/layout/SearchBar";
 import { useAuthStore } from "@/store/authStore";
 import { Book } from "@/types/book";
+import { getAudioDuration } from "@/lib/audioDuration";
+import { saveBook, removeBook, isBookSaved } from "@/lib/library";
 import { AiOutlineStar, AiOutlineBulb } from "react-icons/ai";
 import { BiMicrophone, BiTime } from "react-icons/bi";
-import { BsBook, BsBookmark } from "react-icons/bs";
+import { BsBook, BsBookmark, BsBookmarkFill } from "react-icons/bs";
 
 export default function BookPage() {
   const params = useParams();
@@ -26,6 +28,29 @@ export default function BookPage() {
   const [book, setBook] = useState<Book | null>(null);
   const [loading, setLoading] = useState(true);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [isSaved, setIsSaved] = useState(false);
+  const [savingBook, setSavingBook] = useState(false);
+  const [duration, setDuration] = useState<number | null>(null);
+
+  useEffect(() => {
+    async function checkSavedStatus() {
+      if (user && id) {
+        const saved = await isBookSaved(user.uid, id);
+        setIsSaved(saved);
+      }
+    }
+    checkSavedStatus();
+  }, [user, id]);
+
+  useEffect(() => {
+    async function fetchDuration() {
+      if (book?.audioLink) {
+        const dur = await getAudioDuration(book.audioLink);
+        setDuration(dur);
+      }
+    }
+    fetchDuration();
+  }, [book?.audioLink]);
 
   useEffect(() => {
     async function fetchBook() {
@@ -64,13 +89,33 @@ export default function BookPage() {
     }
   };
 
-  const handleAddToLibrary = () => {
+  const handleAddToLibrary = async () => {
     if (!user) {
       openModal();
       return;
     }
-    // TODO: Add to library functionality
-    console.log("Add to library:", book?.id);
+
+    setSavingBook(true);
+    try {
+      if (isSaved) {
+        await removeBook(user.uid, id);
+        setIsSaved(false);
+      } else {
+        await saveBook(user.uid, id);
+        setIsSaved(true);
+      }
+    } catch (error) {
+      console.error("Error updating library:", error);
+    } finally {
+      setSavingBook(false);
+    }
+  };
+
+  const formatDuration = (seconds: number | null): string => {
+    if (!seconds) return "--:--";
+    const mins = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
   };
 
   if (loading) {
@@ -163,7 +208,11 @@ export default function BookPage() {
                   </div>
                   <div className="flex items-center gap-1">
                     <BiTime className="w-5 h-5" />
-                    <span>--:--</span>
+                    <span>
+                      <div className="flex items-center gap-1">
+                        <span>{formatDuration(duration)}</span>
+                      </div>
+                    </span>
                   </div>
                   <div className="flex items-center gap-1">
                     <BiMicrophone className="w-5 h-5" />
@@ -197,10 +246,17 @@ export default function BookPage() {
               {/* Add to Library */}
               <button
                 onClick={handleAddToLibrary}
-                className="flex items-center gap-2 text-[#0365f2] mb-8 cursor-pointer hover:text-[#024cbc] transition-colors"
+                disabled={savingBook}
+                className="flex items-center gap-2 text-[#0365f2] mb-8 cursor-pointer hover:text-[#024cbc] transition-colors disabled:opacity-50"
               >
-                <BsBookmark className="w-5 h-5" />
-                <span>Add title to My Library</span>
+                {isSaved ? (
+                  <BsBookmarkFill className="w-5 h-5" />
+                ) : (
+                  <BsBookmark className="w-5 h-5" />
+                )}
+                <span>
+                  {isSaved ? "Saved in My Library" : "Add title to My Library"}
+                </span>
               </button>
 
               {/* Tags */}

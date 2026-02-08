@@ -6,9 +6,17 @@ import { AiOutlineStar } from "react-icons/ai";
 
 interface BookCardProps {
   book: Book;
+  duration?: number;
 }
 
-export default function BookCard({ book }: BookCardProps) {
+export default function BookCard({ book, duration }: BookCardProps) {
+  const formatDuration = (seconds?: number): string => {
+    if (!seconds) return "--:--";
+    const mins = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
+  };
+
   return (
     <Link
       href={`/book/${book.id}`}
@@ -46,7 +54,7 @@ export default function BookCard({ book }: BookCardProps) {
           <div className="flex w-4 h-4">
             <BiTime className="w-full h-full" />
           </div>
-          <div>--:--</div>
+          <div>{formatDuration(duration)}</div>
         </div>
         <div className="flex items-center gap-1 text-sm font-light text-[#6b757b]">
           <div className="flex w-4 h-4">
