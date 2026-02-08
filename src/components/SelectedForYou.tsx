@@ -5,9 +5,17 @@ import { BsFillPlayFill } from "react-icons/bs";
 
 interface SelectedForYouProps {
   book: Book;
+  duration?: number;
 }
 
-export default function SelectedForYou({ book }: SelectedForYouProps) {
+export default function SelectedForYou({ book, duration }: SelectedForYouProps) {
+  const formatDuration = (seconds?: number): string => {
+    if (!seconds) return "--:--";
+    const mins = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
+  };
+
   return (
     <Link
       href={`/book/${book.id}`}
@@ -42,7 +50,7 @@ export default function SelectedForYou({ book }: SelectedForYouProps) {
               <BsFillPlayFill className="w-full h-full text-white" />
             </div>
             <div className="text-sm font-medium text-[#032b41]">
-              3 mins 23 secs
+              {formatDuration(duration)}
             </div>
           </div>
         </div>
