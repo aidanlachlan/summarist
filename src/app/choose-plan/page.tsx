@@ -47,7 +47,6 @@ export default function ChoosePlan() {
   const handleSubscribe = async () => {
     setIsLoading(true);
 
-    // Replace these with your actual Stripe price IDs
     const priceId =
       selectedPlan === "yearly"
         ? "price_1SxIsqQstFjfOhVihLYvMYMP"
@@ -203,7 +202,7 @@ export default function ChoosePlan() {
         </div>
       </div>
 
-      {/* Sticky CTA Button */}
+      {/* CTA Button */}
       <div className="sticky bottom-0 bg-white py-6 px-6  border-[#e1e7ea]">
         <div className="max-w-[600px] mx-auto">
           <button
