@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Book } from "@/types/book";
 import { BiTime } from "react-icons/bi";
 import { AiOutlineStar } from "react-icons/ai";
+import { useAuthStore } from "@/store/authStore";
 
 interface BookCardProps {
   book: Book;
@@ -10,6 +11,9 @@ interface BookCardProps {
 }
 
 export default function BookCard({ book, duration }: BookCardProps) {
+  const subscriptionStatus = useAuthStore((s) => s.subscriptionStatus);
+  const subscriptionLoading = useAuthStore((s) => s.subscriptionLoading);
+
   const formatDuration = (seconds?: number): string => {
     if (!seconds) return "--:--";
     const mins = Math.floor(seconds / 60);
@@ -22,7 +26,7 @@ export default function BookCard({ book, duration }: BookCardProps) {
       href={`/book/${book.id}`}
       className="relative scroll-snap-align-start pt-8 px-3 pb-3 rounded max-w-[200px] w-full flex-shrink-0"
     >
-      {book.subscriptionRequired && (
+      {book.subscriptionRequired && !subscriptionLoading && subscriptionStatus === "basic" && (
         <div className="absolute top-0 right-0 bg-[#032b41] w-fit h-[18px] px-2 text-white text-[10px] flex items-center rounded-full">
           Premium
         </div>
