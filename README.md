@@ -1,6 +1,6 @@
 # Summarist
 
-> Gain more knowledge in less time — an audiobook summary app with subscriptions, personalized recommendations, and a built-in audio player.
+> Gain more knowledge in less time: an audiobook summary app with subscriptions, personalized recommendations, and a built-in audio player.
 
 ![Next.js](https://img.shields.io/badge/Next.js-16.1.4-black?logo=next.js)
 ![React](https://img.shields.io/badge/React-19.2.3-61DAFB?logo=react)
@@ -14,11 +14,11 @@
 
 ## About
 
-Summarist is a full-stack audiobook summary platform that lets users discover, save, and listen to condensed book summaries. It's built around the idea that key insights from non-fiction books shouldn't require hours of listening — Summarist surfaces the core ideas in a fraction of the time.
+Summarist is a full-stack audiobook summary platform that lets users discover, save, and listen to condensed book summaries. It's built around the idea that key insights from non-fiction books shouldn't require hours of listening: Summarist surfaces the core ideas in a fraction of the time.
 
 The app features a curated home feed with selected, recommended, and suggested books, a personal library where users can track saved and finished titles, and a fully functional in-browser audio player. Authentication supports email/password, Google OAuth, and a guest demo mode, making it easy for anyone to explore without committing to an account.
 
-Subscriptions are gated at the content level — some books require a premium plan to access. Payments are handled through Stripe via the Firebase `firestore-stripe-payments` extension, which manages checkout sessions, customer portals, and subscription status entirely through Firestore listeners. The architecture keeps the frontend thin by delegating all book data to Firebase Cloud Functions and all payment logic to the Stripe extension.
+Subscriptions are gated at the content level: some books require a premium plan to access. Payments are handled through Stripe via the Firebase `firestore-stripe-payments` extension, which manages checkout sessions, customer portals, and subscription status entirely through Firestore listeners. The architecture keeps the frontend thin by delegating all book data to Firebase Cloud Functions and all payment logic to the Stripe extension.
 
 > This project was bootstrapped with `create-next-app` and built out into a production-grade application on top of that foundation.
 
@@ -28,32 +28,32 @@ Subscriptions are gated at the content level — some books require a premium pl
 
 ## Features
 
-- **Authentication** — Email/password, Google OAuth, and guest login (demo account)
+- **Authentication**: Email/password, Google OAuth, and guest login (demo account)
 
-![Login Modal](./screenshots/login.png)
+<img src="./screenshots/login.png" width="400" />
 
-- **Personalized home feed** — Selected, recommended, and suggested book sections
+- **Personalized home feed**: Selected, recommended, and suggested book sections
 
 ![For You Page](./screenshots/for-you.png)
 
-- **Book detail pages** — Cover art, ratings, key ideas count, author info, and full description
+- **Book detail pages**: Cover art, ratings, key ideas count, author info, and full description
 
 ![Book Detail](./screenshots/book-detail.png)
 
-- **In-browser audio player** — Play/pause, skip forward/backward, progress scrubbing, playback speed control, and volume
+- **In-browser audio player**: Play/pause, skip forward/backward, progress scrubbing, playback speed control, and volume
 
 ![Audio Player](./screenshots/audio-player.png)
 
-- **Personal library** — Save books and track finished titles, persisted in Firestore
-- **Live search** — Debounced search across book titles and authors with a dropdown results panel
-- **Subscription plans** — Two paid tiers (monthly, yearly) with Stripe checkout and customer portal
+- **Personal library**: Save books and track finished titles, persisted in Firestore
+- **Live search**: Debounced search across book titles and authors with a dropdown results panel
+- **Subscription plans**: Two paid tiers (monthly, yearly) with Stripe checkout and customer portal
 
 ![Choose Plan](./screenshots/choose-plan.png)
 
-- **Premium content gating** — Books marked `subscriptionRequired` redirect free users to the plan page
-- **Subscription management** — Users can view plan status and open the Stripe customer portal from settings
-- **Responsive layout** — Sidebar-based app shell with mobile-friendly navigation
-- **Skeleton loaders** — Loading states on all data-fetching pages
+- **Premium content gating**: Books marked `subscriptionRequired` redirect free users to the plan page
+- **Subscription management**: Users can view plan status and open the Stripe customer portal from settings
+- **Responsive layout**: Sidebar-based app shell with mobile-friendly navigation
+- **Skeleton loaders**: Loading states on all data-fetching pages
 
 ---
 
@@ -81,11 +81,11 @@ Subscriptions are gated at the content level — some books require a premium pl
 summarist/
 ├── src/
 │   ├── app/                        # Next.js App Router pages
-│   │   ├── layout.tsx              # Root layout — fonts, AuthProvider, AuthModal
+│   │   ├── layout.tsx              # Root layout: fonts, AuthProvider, AuthModal
 │   │   ├── page.tsx                # Landing page
 │   │   ├── globals.css             # Global Tailwind imports
 │   │   ├── home.css                # Landing page scoped styles
-│   │   ├── book/[id]/page.tsx      # Book detail — cover, summary, save/play
+│   │   ├── book/[id]/page.tsx      # Book detail: cover, summary, save/play
 │   │   ├── player/[id]/page.tsx    # Audio player with controls and progress
 │   │   ├── library/page.tsx        # Saved & finished books
 │   │   ├── for-you/page.tsx        # Personalized feed (selected/recommended/suggested)
@@ -200,7 +200,7 @@ When a user logs in, `fetchSubscription()` queries the `customers/{uid}/subscrip
 
 ### Book Data
 
-Books come from an external Firebase Cloud Functions API. The frontend fetches directly from this endpoint — there is no Next.js API layer. Audio durations are computed client-side by loading each audio URL into an HTML `Audio` element and reading `duration`.
+Books come from an external Firebase Cloud Functions API. The frontend fetches directly from this endpoint: there is no Next.js API layer. Audio durations are computed client-side by loading each audio URL into an HTML `Audio` element and reading `duration`.
 
 ### Payments
 
@@ -214,7 +214,7 @@ User library state (saved books, finished books) is stored in Firestore at `user
 
 ## Live Demo
 
-A live deployment is not configured in this repository. To deploy, connect the repo to [Vercel](https://vercel.com) and add the environment variables in the Vercel dashboard — no additional configuration is required.
+A live deployment is not configured in this repository. To deploy, connect the repo to [Vercel](https://vercel.com) and add the environment variables in the Vercel dashboard: no additional configuration is required.
 
 ---
 
@@ -222,4 +222,4 @@ A live deployment is not configured in this repository. To deploy, connect the r
 
 This project is private and not licensed for redistribution.
 
-Built by **Aidan McMurray** — [aidanlmcmurray@gmail.com](mailto:aidanlmcmurray@gmail.com)
+Built by **Aidan McMurray**: [aidanlmcmurray@gmail.com](mailto:aidanlmcmurray@gmail.com)
