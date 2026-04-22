@@ -214,8 +214,7 @@ User library state (saved books, finished books) is stored in Firestore at `user
 
 ## Live Demo
 
-A live deployment is not configured in this repository. To deploy, connect the repo to [Vercel](https://vercel.com) and add the environment variables in the Vercel dashboard: no additional configuration is required.
-
+https://summarist-ochre.vercel.app/
 ---
 
 ## License & Contact
